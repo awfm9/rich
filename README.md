@@ -1,6 +1,6 @@
 # Rich Contextual Errors for Zerolog
 
-[![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/awfm/rich) [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/awfm/rich/master/LICENSE) [![Build Status](https://travis-ci.org/awfm/rich.svg?branch=master)](https://travis-ci.org/awfm/rich) [![Coverage](http://gocover.io/_badge/github.com/awfm/rich)](http://gocover.io/github.com/awfm/rich)
+[![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/awfm/rich) [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/awfm/rich/master/LICENSE) [![Build Status](https://travis-ci.org/awfm/rich.svg?branch=master)](https://travis-ci.org/awfm/rich)
 
 The rich package provides errors with rich, structured context information for Zerolog.
 
