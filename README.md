@@ -93,3 +93,67 @@ The output in this case would be mixing structured context with unstructured con
 ```
 
 The rich error package bridges this gap between error context and logging context, extending all of the advantages of structured logging to the context embedded in the error.
+
+## Tips
+
+Error handling with go is simple; however, there are still a few tips to keep in mind to get the most out of it.
+
+### Don't add function parameters to the error context
+
+When a function is called, the caller already has access to all the information on the parameters. It should therefore be left to the caller which information is included in the context for logging.
+
+Don't do:
+
+```go
+func do(p1 string, p2 uint64) error {
+  return rich.Errorf("could not do stuff: %w", err).Str("p1", p1).Uint64("p2", p2)
+}
+```
+
+Instead, do:
+
+```go
+func do(p1 string, p2 uint64) error {
+   return rich.Errorf("could not do stuff: %w", err)
+}
+```
+
+The caller can than choose:
+
+```go
+err := do(p1, p2)
+if err != nil {
+  rich.Log(log.Warn).Str("p1", p1).Uint64("p2", p2)
+}
+```
+
+### Only provide context relevant for the error path
+
+When you have multiple error paths in a function, don't include all of the information in each of them. If context information isn't relevant for a path, don't include it.
+
+If you have this:
+
+```go
+n, err := f.Write(data)
+if err != nil {
+  return rich.Errorf("could not write data: %w", err).Int64("bytes_written", n)
+}
+```
+
+Don't do:
+
+```go
+err = f.Close()
+if err != nil {
+  return rich.Errorf("could not close file: %w", err).Int64("bytes_written", n)
+}
+```
+
+Instead, do:
+
+```go
+err = f.Close()
+if err != nil {
+  return rich.Errorf("could not close file: %w", err)
+}
+```
