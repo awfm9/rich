@@ -1,10 +1,8 @@
 package rich
 
 import (
-	"fmt"
-	"strings"
-
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Logger struct {
@@ -16,7 +14,10 @@ func Log(log *zap.Logger) *Logger {
 }
 
 func (l *Logger) With(fields ...zap.Field) *zap.Logger {
-	return l.log.With(expand(fields)...)
+	if len(fields) > 0 && fields[0].Type == zapcore.ErrorType {
+		fields = append(fs(fields[0].Interface.(error)), fields[1:]...)
+	}
+	return l.log.With(fields...)
 }
 
 type SugaredLogger struct {
@@ -28,21 +29,19 @@ func Sugar(log *zap.SugaredLogger) *SugaredLogger {
 }
 
 func (s *SugaredLogger) With(args ...interface{}) *zap.SugaredLogger {
-	return s.log.With(flatten(expand(sweeten(args)))...)
-}
-
-type fields []zap.Field
-
-func (fs fields) String() string {
-	ss := make([]string, 0, len(fs))
-	for _, f := range fs {
-		ss = append(ss, fmt.Sprintf("%s: %v", f.Key, f.Interface))
+	if len(args) == 0 {
+		return s.log.With(args...)
 	}
-	return strings.Join(ss, ", ")
-}
-
-type args []interface{}
-
-func (as args) String() string {
-	return fields(sweeten(as)).String()
+	field, isField := args[0].(zap.Field)
+	if isField && field.Type == zapcore.ErrorType {
+		args = append(as(field.Interface.(error)), args[1:]...)
+	}
+	key, isKey := args[0].(string)
+	if isKey && key == "error" && len(args) > 1 {
+		err, isErr := args[1].(error)
+		if isErr {
+			args = append(as(err), args[2:]...)
+		}
+	}
+	return s.log.With(args...)
 }

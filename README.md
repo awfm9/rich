@@ -79,7 +79,7 @@ func main() {
   if err != nil {
     rich.Log(log).
       With(
-        zap.Error(err),
+        zap.Error(err), // has to be first item to use rich error context
         zap.String("src", src.Name()),
         zap.String("dst", src.Name()),
       ).
@@ -123,7 +123,7 @@ func main() {
   if err != nil {
     rich.Sugar(sugar).
       With(
-        "error", err,
+        "error", err, // has to be first item to use rich error context
         "src", src.Name(),
         "dst", dst.Name(),
       ).

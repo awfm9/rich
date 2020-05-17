@@ -8,33 +8,28 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func expand(fields []zap.Field) fields {
-	expanded := make([]zap.Field, 0, len(fields))
-	for _, field := range fields {
-		if field.Type != zapcore.ErrorType {
-			expanded = append(expanded, field)
-			continue
-		}
-		if field.Key != "error" {
-			expanded = append(expanded, field)
-			continue
-		}
-		err := field.Interface.(error)
-		var r *Error
-		if errors.As(field.Interface.(error), &r) {
-			expanded = append(expanded, zap.Error(r.err))
-			expanded = append(expanded, r.fields...)
-			continue
-		}
-		var s *Sugared
-		if errors.As(err, &s) {
-			expanded = append(expanded, zap.Error(s.err))
-			expanded = append(expanded, sweeten(s.args)...)
-			continue
-		}
-		expanded = append(expanded, field)
+func fs(err error) []zap.Field {
+	var r *Error
+	if errors.As(err, &r) {
+		return append([]zap.Field{zap.Error(r.err)}, r.fields...)
 	}
-	return expanded
+	var s *Sugared
+	if errors.As(err, &s) {
+		return append([]zap.Field{zap.Error(s.err)}, sweeten(s.args)...)
+	}
+	return []zap.Field{zap.Error(err)}
+}
+
+func as(err error) []interface{} {
+	var r *Error
+	if errors.As(err, &r) {
+		return append([]interface{}{zap.Error(r.err)}, flatten(r.fields)...)
+	}
+	var s *Sugared
+	if errors.As(err, &s) {
+		return append([]interface{}{zap.Error(s.err)}, s.args...)
+	}
+	return []interface{}{zap.Error(s.err)}
 }
 
 func flatten(fields []zap.Field) []interface{} {

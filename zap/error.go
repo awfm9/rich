@@ -3,19 +3,20 @@ package rich
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 )
 
 type Error struct {
 	err    error
-	fields fields
+	fields []zap.Field
 }
 
 func Errorf(format string, a ...interface{}) *Error {
 	err := fmt.Errorf(format, a...)
 	w := errors.Unwrap(err)
-	var fields fields
+	var fields []zap.Field
 	var e *Error
 	if errors.As(w, &e) {
 		fields = e.fields
@@ -31,7 +32,12 @@ func Errorf(format string, a ...interface{}) *Error {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("%s (%s)", e.err, e.fields)
+	ss := make([]string, 0, len(e.fields))
+	for _, field := range e.fields {
+		ss = append(ss, fmt.Sprintf("%s: %v", field.Key, field.Interface))
+	}
+	msg := strings.Join(ss, ", ")
+	return fmt.Sprintf("%s (%s)", e.err, msg)
 }
 
 func (e *Error) With(fields ...zap.Field) *Error {
@@ -48,11 +54,17 @@ func (e *Error) Sugar() *Sugared {
 
 type Sugared struct {
 	err  error
-	args args
+	args []interface{}
 }
 
 func (s *Sugared) Error() string {
-	return fmt.Sprintf("%s (%s)", s.err, s.args)
+	fields := sweeten(s.args)
+	ss := make([]string, 0, len(fields))
+	for _, field := range fields {
+		ss = append(ss, fmt.Sprintf("%s: %v", field.Key, field.Interface))
+	}
+	msg := strings.Join(ss, ", ")
+	return fmt.Sprintf("%s (%s)", s.err, msg)
 }
 
 func (s *Sugared) With(args ...interface{}) *Sugared {
