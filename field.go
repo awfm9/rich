@@ -263,7 +263,7 @@ type timeField struct {
 }
 
 func (f timeField) String() string {
-	return fmt.Sprintf("%s: %s", f.key, f.val)
+	return fmt.Sprintf("%s: %s", f.key, f.val.Format(time.RFC3339))
 }
 
 func (f timeField) Log(ev *zerolog.Event) {
