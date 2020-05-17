@@ -10,22 +10,23 @@ import (
 )
 
 type Logger struct {
-	ev *zerolog.Event
+	log func() *zerolog.Event
 }
 
-func Log(entry func() *zerolog.Event) *Logger {
-	return &Logger{ev: entry()}
+func Log(log func() *zerolog.Event) *Logger {
+	return &Logger{log: log}
 }
 
 func (l *Logger) Err(err error) *zerolog.Event {
+	ev := l.log()
 	r, ok := err.(*Error)
 	if !ok {
-		return l.ev.Err(err)
+		return ev.Err(err)
 	}
 	for _, f := range r.fs {
-		f.Log(l.ev)
+		f.Log(ev)
 	}
-	return l.ev.Err(r.err)
+	return ev.Err(r.err)
 }
 
 type field interface {
