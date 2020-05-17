@@ -27,7 +27,7 @@ import (
   "io"
   "os"
 
-  "github.com/awfm/rich"
+  rich "github.com/awfm/rich/zerolog"
   "github.com/rs/zerolog"
 )
 
