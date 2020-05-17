@@ -8,11 +8,11 @@ type Logger struct {
 	ev *zerolog.Event
 }
 
-func Log(entry func() *zerolog.Event) Logger {
-	return Logger{ev: entry()}
+func Log(entry func() *zerolog.Event) *Logger {
+	return &Logger{ev: entry()}
 }
 
-func (l Logger) Err(err error) *zerolog.Event {
+func (l *Logger) Err(err error) *zerolog.Event {
 	r, ok := err.(*Error)
 	if !ok {
 		l.ev.Err(err)
