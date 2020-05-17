@@ -9,23 +9,23 @@ import (
 )
 
 type Logger struct {
-	log func() *logrus.Entry
+	log *logrus.Logger
 }
 
-func Log(log func() *logrus.Entry) *Logger {
+func Log(log *logrus.Logger) *Logger {
 	return &Logger{log}
 }
 
 func (l *Logger) WithError(err error) *logrus.Entry {
-	en := l.log()
 	r, ok := err.(*Error)
 	if !ok {
-		return en.WithError(err)
+		return l.log.WithError(err)
 	}
+	entry := l.log.WithError(r.err)
 	for _, f := range r.fs {
-		f.Log(en)
+		f.Log(entry)
 	}
-	return en.WithError(r.err)
+	return entry
 }
 
 type field interface {

@@ -4,21 +4,147 @@
 
 The rich package provides errors with rich, structured context information for Zerolog.
 
-## Advantages
-
-- Useable as drop-in replacement to log normal errors
-- Allows adding structured context fields to errors
-- Can bubble up error context through API boundaries
-- Conserves support for Go 1.13 error comparisons
-- Can merge rich error contexts by wrapping them
-
 ## Installation
 
 ```sh
 go get -u github.com/awfm/rich
 ```
 
-## Example
+## Examples
+
+### Logrus
+
+```go
+package main
+
+import (
+  "io"
+  "os"
+
+  rich "github.com/awfm/rich/logrus"
+  "github.com/sirupsen/logrus"
+)
+
+func main() {
+
+  log := logrus.New()
+
+  var src, dst *os.File
+
+  err := copyFile(src, dst)
+  if err != nil {
+    rich.Log(log).
+      WithError(err).
+      WithFields(logrus.Fields{
+        "src": src.Name(),
+        "dst", dst.Name(),
+      }).
+      Fatal("could not copy file")
+  }
+
+  os.Exit(0)
+}
+
+func copyFile(src *os.File, dst *os.File) error {
+
+  n, err := io.Copy(src, dst)
+  if err != nil {
+    return rich.Errorf("could not copy contents: %w", err).WithField("bytes_written", n)
+  }
+  
+  return nil
+}
+```
+
+### Zap
+
+```go
+package main
+
+import (
+  "io"
+  "os"
+
+  rich "github.com/awfm/rich/zap"
+  "go.uber.org/zap"
+)
+
+func main() {
+
+  log := zap.NewProduction()
+
+  var src, dst *os.File
+
+  err := copyFile(src, dst)
+  if err != nil {
+    rich.Log(log).
+      With(
+        zap.Error(err),
+        zap.String("src", src.Name()),
+        zap.String("dst", src.Name()),
+      ).
+      Fatal("could not copy file")
+  }
+
+  os.Exit(0)
+}
+
+func copyFile(src *os.File, dst *os.File) error {
+
+  n, err := io.Copy(src, dst)
+  if err != nil {
+    return rich.Errorf("could not copy contents: %w", err).With(zap.Int64("bytes_written", n))
+  }
+  
+  return nil
+}
+```
+
+### Zap (sugared)
+
+```go
+package main
+
+import (
+  "io"
+  "os"
+
+  rich "github.com/awfm/rich/zap"
+  "go.uber.org/zap"
+)
+
+func main() {
+
+  sugar := zap.NewProduction().Sugar()
+
+  var src, dst *os.File
+
+  err := copyFile(src, dst)
+  if err != nil {
+    rich.Sugar(sugar).
+      With(
+        "error", err,
+        "src", src.Name(),
+        "dst", dst.Name(),
+      ).
+      Fatal("could not copy file")
+  }
+
+  os.Exit(0)
+}
+
+func copyFile(src *os.File, dst *os.File) error {
+
+  n, err := io.Copy(src, dst)
+  if err != nil {
+    return rich.Errorf("could not copy contents: %w", err).Sugar().With("bytes_written", n)
+  }
+  
+  return nil
+}
+```
+
+### Zerolog
 
 ```go
 package main
@@ -28,7 +154,7 @@ import (
   "os"
 
   rich "github.com/awfm/rich/zerolog"
-  "github.com/rs/zerolog"
+  "github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -39,7 +165,11 @@ func main() {
 
   err := copyFile(src, dst)
   if err != nil {
-    rich.Log(log.Fatal).Err(err).Str("src", src.Name()).Str("dst", dst.Name()).Msg("could not copy file")
+    rich.Log(log.Fatal).
+      Err(err).
+      Str("src", src.Name()).
+      Str("dst", dst.Name()).
+      Msg("could not copy file")
   }
 
   os.Exit(0)
@@ -56,7 +186,7 @@ func copyFile(src *os.File, dst *os.File) error {
 }
 ```
 
-Output:
+### Output
 
 ```json
 {"level": "fatal", "src": "file1", "dst": "file2", "bytes_written": 123, "err": "could not copy contents: some file error"}
