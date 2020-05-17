@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -34,16 +33,6 @@ func (e *Error) Error() string {
 
 func (e *Error) Unwrap() error {
 	return e.err
-}
-
-func (e *Error) WithTime(time time.Time) *Error {
-	e.fs = append(e.fs, timeField{time})
-	return e
-}
-
-func (e *Error) WithError(err error) *Error {
-	e.fs = append(e.fs, errField{err})
-	return e
 }
 
 func (e *Error) WithField(key string, value string) *Error {

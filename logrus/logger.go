@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -14,10 +13,10 @@ type Logger struct {
 }
 
 func Log(log func() *logrus.Entry) *Logger {
-	return &Logger{log: log}
+	return &Logger{log}
 }
 
-func (l *Logger) Err(err error) *logrus.Entry {
+func (l *Logger) WithError(err error) *logrus.Entry {
 	en := l.log()
 	r, ok := err.(*Error)
 	if !ok {
@@ -42,30 +41,6 @@ func (fs fields) String() string {
 		ss = append(ss, f.String())
 	}
 	return strings.Join(ss, ", ")
-}
-
-type timeField struct {
-	time time.Time
-}
-
-func (f timeField) String() string {
-	return fmt.Sprintf("%s: %s", logrus.FieldKeyTime, time.RFC3339)
-}
-
-func (f timeField) Log(en *logrus.Entry) {
-	en.WithTime(f.time)
-}
-
-type errField struct {
-	err error
-}
-
-func (f errField) String() string {
-	return fmt.Sprintf("%s: %s", logrus.ErrorKey, f.err)
-}
-
-func (f errField) Log(en *logrus.Entry) {
-	en.WithError(f.err)
 }
 
 type ifaceField struct {

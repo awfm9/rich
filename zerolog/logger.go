@@ -14,7 +14,7 @@ type Logger struct {
 }
 
 func Log(log func() *zerolog.Event) *Logger {
-	return &Logger{log: log}
+	return &Logger{log}
 }
 
 func (l *Logger) Err(err error) *zerolog.Event {
