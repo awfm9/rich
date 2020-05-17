@@ -8,37 +8,27 @@ import (
 )
 
 type Logger struct {
-	*zap.Logger
-	fs []zap.Field
+	log *zap.Logger
 }
 
-func Log(log *zap.Logger, err error) *Logger {
-	fs := []zap.Field{zap.Error(err)}
-	r, ok := err.(*Error)
-	if ok {
-		fs = append(fs, r.fs...)
-	}
-	return &Logger{log, fs}
+func Log(log *zap.Logger) *Logger {
+	return &Logger{log}
 }
 
-func (l *Logger) DPanic(msg string, fields ...zap.Field) {
-	l.Logger.DPanic(msg, append(l.fs, fields...)...)
+func (l *Logger) With(fields ...zap.Field) *zap.Logger {
+	return l.log.With(expand(fields)...)
 }
 
-func (l *Logger) Debug(msg string, fields ...zap.Field) {
-	l.Logger.Debug(msg, append(l.fs, fields...)...)
+type SugaredLogger struct {
+	log *zap.SugaredLogger
 }
 
-func (l *Logger) Error(msg string, fields ...zap.Field) {
-	l.Logger.Debug(msg, append(l.fs, fields...)...)
+func Sugar(log *zap.SugaredLogger) *SugaredLogger {
+	return &SugaredLogger{log}
 }
 
-func (l *Logger) Fatal(msg string, fields ...zap.Field) {
-	l.Logger.Debug(msg, append(l.fs, fields...)...)
-}
-
-func (l *Logger) Info(msg string, fields ...zap.Field) {
-	l.Logger.Debug(msg, append(l.fs, fields...)...)
+func (s *SugaredLogger) With(args ...interface{}) *zap.SugaredLogger {
+	return s.log.With(flatten(expand(sweeten(args)))...)
 }
 
 type fields []zap.Field
@@ -49,4 +39,10 @@ func (fs fields) String() string {
 		ss = append(ss, fmt.Sprintf("%s: %v", f.Key, f.Interface))
 	}
 	return strings.Join(ss, ", ")
+}
+
+type args []interface{}
+
+func (as args) String() string {
+	return fields(sweeten(as)).String()
 }
