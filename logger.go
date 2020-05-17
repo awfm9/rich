@@ -15,7 +15,7 @@ func Log(entry func() *zerolog.Event) *Logger {
 func (l *Logger) Err(err error) *zerolog.Event {
 	r, ok := err.(*Error)
 	if !ok {
-		l.ev.Err(err)
+		return l.ev.Err(err)
 	}
 	for _, f := range r.fs {
 		f.Log(l.ev)
