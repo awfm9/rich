@@ -1,6 +1,7 @@
 package rich
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -10,12 +11,16 @@ type Error struct {
 	fs  fields
 }
 
+func Err(format string, a ...interface{}) Error {
+	return Error{err: fmt.Errorf(format, a...)}
+}
+
 func (e Error) Error() string {
 	return fmt.Sprintf("%s (%s)", e.err, e.fs)
 }
 
-func Err(format string, a ...interface{}) Error {
-	return Error{err: fmt.Errorf(format, a...)}
+func (e Error) Is(err error) bool {
+	return errors.Is(e.err, err)
 }
 
 func (e Error) Bool(key string, val bool) Error {

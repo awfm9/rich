@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -25,6 +26,8 @@ func main() {
 	}
 
 	fmt.Println(err)
+
+	fmt.Println(errors.Is(err, io.EOF))
 }
 
 func do(p1 float32, p2 uint64) error {
