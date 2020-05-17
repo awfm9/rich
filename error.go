@@ -11,7 +11,7 @@ type Error struct {
 	fs  fields
 }
 
-func Err(format string, a ...interface{}) Error {
+func Errorf(format string, a ...interface{}) Error {
 	return Error{err: fmt.Errorf(format, a...)}
 }
 

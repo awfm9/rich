@@ -12,7 +12,7 @@ func Log(entry func() *zerolog.Event) Logger {
 	return Logger{ev: entry()}
 }
 
-func (l Logger) On(err error) *zerolog.Event {
+func (l Logger) Err(err error) *zerolog.Event {
 	r, ok := err.(Error)
 	if !ok {
 		l.ev.Err(err)
