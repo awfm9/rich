@@ -3,8 +3,6 @@ package rich
 import (
 	"fmt"
 	"time"
-
-	"github.com/rs/zerolog"
 )
 
 type Error struct {
@@ -16,15 +14,8 @@ func (e Error) Error() string {
 	return fmt.Sprintf("%s (%s)", e.err, e.fs)
 }
 
-func Errorf(format string, a ...interface{}) Error {
+func Err(format string, a ...interface{}) Error {
 	return Error{err: fmt.Errorf(format, a...)}
-}
-
-func (e Error) Log(ev *zerolog.Event) *zerolog.Event {
-	for _, f := range e.fs {
-		f.Log(ev)
-	}
-	return ev.Err(e.err)
 }
 
 func (e Error) Bool(key string, val bool) Error {
