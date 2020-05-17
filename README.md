@@ -67,7 +67,7 @@ I like Go error handling. While verbose, it's a pragmatic and unambiguous way to
 
 I also love structured JSON logging. With tools such as `jq`, it becomes easy to analyze your applications logic in detail. The visibility gained is an indispensable part of monitoring and maintenance for large-scale production applications.
 
-The issue is that, in the case of error paths, both the logging and the error wrapping will often be used to add contextual information. In an idea world, we would be able to bring them both together - and this is what `rich.Error` and `rich.Log` do.
+The issue is that, in the case of error paths, both the logging and the error wrapping will often be used to add contextual information. In an ideal world, we would be able to bring them both together - and this is what `rich.Error` and `rich.Log` do.
 
 Consider some of the code from the example without the use of the rich package:
 
