@@ -33,8 +33,8 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("%s (%s)", e.err, e.fs)
 }
 
-func (e *Error) Is(err error) bool {
-	return errors.Is(e.err, err)
+func (e *Error) Unwrap() error {
+	return e.err
 }
 
 func (e *Error) Bool(key string, val bool) *Error {
