@@ -10,6 +10,7 @@ The rich package provides errors with rich, structured context information for Z
 - Allows adding structured context fields to errors
 - Can bubble up error context through API boundaries
 - Conserves support for Go 1.13 error comparisons
+- Can merge rich error contexts by wrapping them
 
 ## Installation
 

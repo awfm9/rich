@@ -16,7 +16,17 @@ type Error struct {
 }
 
 func Errorf(format string, a ...interface{}) *Error {
-	return &Error{err: fmt.Errorf(format, a...)}
+	err := fmt.Errorf(format, a...)
+	w := errors.Unwrap(err)
+	var fs fields
+	var r *Error
+	if errors.As(w, &r) {
+		fs = r.fs
+	}
+	return &Error{
+		err: err,
+		fs:  fs,
+	}
 }
 
 func (e *Error) Error() string {
