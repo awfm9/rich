@@ -92,4 +92,4 @@ The output in this case would be mixing structured context with unstructured con
 {"level": "fatal", "src": "file1", "dst": "file2", "err": "could not copy contents (bytes written: 123): some file error"}
 ```
 
-The rich error package bridges this gap between error context and logging context.
+The rich error package bridges this gap between error context and logging context, extending all of the advantages of structured logging to the context embedded in the error.
