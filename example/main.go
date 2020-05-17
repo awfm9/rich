@@ -14,8 +14,7 @@ import (
 
 func main() {
 
-	zerolog.TimestampFunc = func() time.Time { return time.Now().UTC() }
-	log := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	log := zerolog.New(os.Stderr)
 
 	p1 := rand.Float32()
 	p2 := rand.Uint64()
